@@ -3,6 +3,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.commons.lang3.mutable.MutableInt;
 
@@ -45,20 +46,22 @@ public class VendingMachine {
     	updateDisplay();
     	return currentDisplay;
     }
+
+    private static Map<String, BigDecimal> coinValues = new HashMap<>();
+    static {
+    	coinValues.put(Constants.QUARTER, new BigDecimal(Constants.TWENTY_FIVE_CENTS));
+    	coinValues.put(Constants.DIME, new BigDecimal(Constants.TEN_CENTS));
+    	coinValues.put(Constants.NICKEL, new BigDecimal(Constants.FIVE_CENTS));
+	}
     
     public void insertCoin(String coin) {
-    	if (coin.equals(Constants.NICKEL)) {
-        	customerCoins.add(coin);
-    		customerBalance = customerBalance.add(new BigDecimal(Constants.FIVE_CENTS));
-    	} else if (coin.equals(Constants.DIME)) {
-        	customerCoins.add(coin);
-    		customerBalance = customerBalance.add(new BigDecimal(Constants.TEN_CENTS));
-    	} else if (coin.equals(Constants.QUARTER)) {
-        	customerCoins.add(coin);
-    		customerBalance = customerBalance.add(new BigDecimal(Constants.TWENTY_FIVE_CENTS));
-    	} else {
-    		coinReturn.add(coin);
-    	}
+		Optional<BigDecimal> coinValue = Optional.ofNullable(coinValues.get(coin));
+		if (coinValue.isPresent()) {
+			customerBalance = customerBalance.add(coinValue.get());
+			customerCoins.add(coin);
+		} else {
+			coinReturn.add(coin);
+		}
     	
     	updateDisplay();
     }
